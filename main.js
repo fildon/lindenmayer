@@ -9,16 +9,17 @@ function BranchGroup(canvasContext) {
 
 function Branch(canvasContext) {
     this.canvasContext = canvasContext;
-    this.baseLength = 90 * (Math.random() * 0.4 + 0.6);
+    this.baseLength = (window.innerHeight / 10) * (Math.random() * 0.4 + 0.6);
+    this.scaleFactor = 0.7 + (Math.random() * 0.2);
     this.angle = 2 * Math.PI * Math.random();
     this.getEndpoint = (startPoint, rotation, depth) => {
-        const length = this.baseLength * (Math.pow(0.9, depth));
+        const length = this.baseLength * (Math.pow(this.scaleFactor, depth));
         return startPoint.translate(length, rotation + this.angle);
     };
     this.draw = (startPoint, rotation, depth) => {
         const endPoint = this.getEndpoint(startPoint, rotation, depth)
-        canvasContext.strokeStyle = "hsl(" + (40 * depth) + ", 100%, 50%)";
-        canvasContext.lineWidth = 4 / (depth + 2);
+        canvasContext.strokeStyle = "hsl(" + (30 * depth) + ", 100%, 50%)";
+        canvasContext.lineWidth = 2 - 2 * (depth / 10);
         canvasContext.beginPath();
         canvasContext.moveTo(startPoint.x, startPoint.y);
         canvasContext.lineTo(endPoint.x, endPoint.y);
