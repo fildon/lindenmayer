@@ -5,6 +5,11 @@ function BranchGroup(canvasContext) {
             branch.draw(startPoint, rotation, depth);
         })
     };
+    this.evolve = () => {
+        this.branches.forEach(branch => {
+            branch.evolve();
+        })
+    };
 }
 
 function Branch(canvasContext) {
@@ -12,18 +17,23 @@ function Branch(canvasContext) {
     this.baseLength = (window.innerHeight / 7) * (Math.random() * 0.4 + 0.6);
     this.scaleFactor = 0.7 + (Math.random() * 0.2);
     this.angle = 2 * Math.PI * Math.random();
+    this.evolution = 0;
     this.getEndpoint = (startPoint, rotation, depth) => {
         const length = this.baseLength * (Math.pow(this.scaleFactor, depth));
         return startPoint.translate(length, rotation + this.angle);
     };
     this.draw = (startPoint, rotation, depth) => {
         const endPoint = this.getEndpoint(startPoint, rotation, depth)
-        canvasContext.strokeStyle = "hsl(" + (30 * depth) + ", 100%, 50%)";
+        canvasContext.strokeStyle = "hsl(" + (30 * depth + this.evolution) + ", 100%, 50%)";
         canvasContext.lineWidth = 2 - 2 * (depth / 6);
         canvasContext.beginPath();
         canvasContext.moveTo(startPoint.x, startPoint.y);
         canvasContext.lineTo(endPoint.x, endPoint.y);
         canvasContext.stroke();
+    };
+    this.evolve = () => {
+        this.angle += 0.005;
+        this.evolution++;
     };
 }
 
@@ -63,14 +73,15 @@ function PaintingTask(branchGroup, startPoint, rotation, depth) {
     };
 }
 
-function breadthFirstPaint() {
-    const canvas = document.getElementById("canvas");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    const canvasContext = canvas.getContext("2d");
+function clearScreen(canvas) {
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function breadthFirstPaint(branchGroup, canvas) {
+    clearScreen(canvas);
     let paintingQueue = [
         new PaintingTask(
-            new BranchGroup(canvasContext),
+            branchGroup,
             new Point(canvas.width / 2, canvas.height / 2),
             0,
             0
@@ -85,6 +96,19 @@ function breadthFirstPaint() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    breadthFirstPaint();
-}, false)
+function start() {
+    const canvas = document.getElementById("canvas");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const canvasContext = canvas.getContext("2d");
+    const branchGroup = new BranchGroup(canvasContext);
+    tick(branchGroup, canvas);
+}
+
+function tick(branchGroup, canvas) {
+    breadthFirstPaint(branchGroup, canvas);
+    branchGroup.evolve();
+    setTimeout(() => {tick(branchGroup, canvas)}, 20);
+}
+
+document.addEventListener("DOMContentLoaded", start, false)
