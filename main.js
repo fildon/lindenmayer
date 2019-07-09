@@ -17,6 +17,7 @@ function Branch(canvasContext) {
     this.baseLength = Math.random() * 0.4 + 0.6;
     this.scaleFactor = 0.7 + (Math.random() * 0.2);
     this.angle = 2 * Math.PI * Math.random();
+    this.angleSpeed = 0.001 + 0.01 * Math.random();
     this.evolution = 0;
     this.getEndpoint = (startPoint, rotation, depth) => {
         const length = this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7);
@@ -32,7 +33,7 @@ function Branch(canvasContext) {
         canvasContext.stroke();
     };
     this.evolve = () => {
-        this.angle += 0.005;
+        this.angle += this.angleSpeed;
         this.evolution++;
     };
 }
