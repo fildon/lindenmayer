@@ -14,12 +14,12 @@ function BranchGroup(canvasContext) {
 
 function Branch(canvasContext) {
     this.canvasContext = canvasContext;
-    this.baseLength = (window.innerHeight / 7) * (Math.random() * 0.4 + 0.6);
+    this.baseLength = Math.random() * 0.4 + 0.6;
     this.scaleFactor = 0.7 + (Math.random() * 0.2);
     this.angle = 2 * Math.PI * Math.random();
     this.evolution = 0;
     this.getEndpoint = (startPoint, rotation, depth) => {
-        const length = this.baseLength * (Math.pow(this.scaleFactor, depth));
+        const length = this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7);
         return startPoint.translate(length, rotation + this.angle);
     };
     this.draw = (startPoint, rotation, depth) => {
@@ -75,6 +75,8 @@ function PaintingTask(branchGroup, startPoint, rotation, depth) {
 
 function clearScreen(canvas) {
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
 function breadthFirstPaint(branchGroup, canvas) {
