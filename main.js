@@ -116,6 +116,7 @@ function tick(branchGroup, canvas, startTime) {
         if (new Date - startTime < 20) {
             targetDepth++;
         } else {
+            targetDepth--;
             raisingTargetDepth = false;
         }
     }
