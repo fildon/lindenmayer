@@ -58,7 +58,7 @@ function PaintingTask(branchGroup, startPoint, rotation, depth) {
         this.branchGroup.draw(this.startPoint, this.rotation, this.depth);
     };
     this.getChildren = () => {
-        if (this.depth > 10) {
+        if (this.depth > targetDepth) {
             return [];
         }
         const children = [];
@@ -105,13 +105,23 @@ function start() {
     canvas.width = window.innerWidth;
     const canvasContext = canvas.getContext("2d");
     const branchGroup = new BranchGroup(canvasContext);
-    tick(branchGroup, canvas);
+    tick(branchGroup, canvas, new Date);
 }
 
-function tick(branchGroup, canvas) {
+function tick(branchGroup, canvas, startTime) {
+    setTimeout(() => {tick(branchGroup, canvas, new Date)}, 20);
     breadthFirstPaint(branchGroup, canvas);
     branchGroup.evolve();
-    setTimeout(() => {tick(branchGroup, canvas)}, 20);
+    if (raisingTargetDepth) {
+        if (new Date - startTime < 20) {
+            targetDepth++;
+        } else {
+            raisingTargetDepth = false;
+        }
+    }
 }
+
+let targetDepth = 1;
+let raisingTargetDepth = true;
 
 document.addEventListener("DOMContentLoaded", start, false)
