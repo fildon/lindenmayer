@@ -109,11 +109,11 @@ function start() {
 }
 
 function tick(branchGroup, canvas, startTime) {
-    setTimeout(() => {tick(branchGroup, canvas, new Date)}, 20);
+    setTimeout(() => {tick(branchGroup, canvas, new Date)}, targetFrameTime);
     breadthFirstPaint(branchGroup, canvas);
     branchGroup.evolve();
     if (raisingTargetDepth) {
-        if (new Date - startTime < 20) {
+        if (new Date - startTime < targetFrameTime) {
             targetDepth++;
         } else {
             targetDepth--;
@@ -122,6 +122,8 @@ function tick(branchGroup, canvas, startTime) {
     }
 }
 
+const targetFramerate = 20;
+const targetFrameTime = 1000/targetFramerate;
 let targetDepth = 1;
 let raisingTargetDepth = true;
 
