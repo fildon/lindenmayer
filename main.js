@@ -19,9 +19,11 @@ function Branch(canvasContext) {
     this.angle = 2 * Math.PI * Math.random();
     this.angleSpeed = 0.001 + 0.01 * Math.random();
     this.evolution = 0;
+    this.scaledLength = (depth) => {
+        return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7); 
+    }
     this.getEndpoint = (startPoint, rotation, depth) => {
-        const length = this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7);
-        return startPoint.translate(length, rotation + this.angle);
+        return startPoint.translate(this.scaledLength(depth), rotation + this.angle);
     };
     this.draw = (startPoint, rotation, depth) => {
         const endPoint = this.getEndpoint(startPoint, rotation, depth)
@@ -63,6 +65,9 @@ function PaintingTask(branchGroup, startPoint, rotation, depth) {
         }
         const children = [];
         this.branchGroup.branches.forEach(branch => {
+            if (branch.scaledLength(depth) < 1) {
+                return;
+            }
             children.push(new PaintingTask(
                 this.branchGroup,
                 branch.getEndpoint(this.startPoint, this.rotation, this.depth),
