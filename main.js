@@ -26,7 +26,7 @@ function Branch(canvasContext) {
     this.draw = (startPoint, rotation, depth) => {
         const endPoint = this.getEndpoint(startPoint, rotation, depth)
         canvasContext.strokeStyle = "hsl(" + (30 * depth + this.evolution) + ", 100%, 50%)";
-        canvasContext.lineWidth = 2 - 2 * (depth / 6);
+        canvasContext.lineWidth = 4 - 4 * (depth / targetDepth);
         canvasContext.beginPath();
         canvasContext.moveTo(startPoint.x, startPoint.y);
         canvasContext.lineTo(endPoint.x, endPoint.y);
@@ -113,10 +113,9 @@ function tick(branchGroup, canvas, startTime) {
     breadthFirstPaint(branchGroup, canvas);
     branchGroup.evolve();
     if (raisingTargetDepth) {
-        if (new Date - startTime < targetFrameTime) {
+        if (new Date - startTime < targetFrameTime / 2) {
             targetDepth++;
         } else {
-            targetDepth--;
             raisingTargetDepth = false;
         }
     }
