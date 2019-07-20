@@ -17,7 +17,7 @@ function Branch(canvasContext) {
     this.baseLength = Math.random() * 0.4 + 0.6;
     this.scaleFactor = 0.7 + (Math.random() * 0.2);
     this.angle = 2 * Math.PI * Math.random();
-    this.angleSpeed = 0.001 + 0.01 * Math.random();
+    this.angleSpeed = 0.01 * Math.random();
     this.evolution = 0;
     this.scaledLength = (depth) => {
         return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7); 
@@ -91,7 +91,7 @@ function breadthFirstPaint(branchGroup, canvas) {
         new PaintingTask(
             branchGroup,
             new Point(canvas.width / 2, canvas.height / 2),
-            0,
+            globalRotation,
             0
         )
     ];
@@ -114,6 +114,7 @@ function start() {
 }
 
 function tick(branchGroup, canvas, startTime) {
+    globalRotation -= 0.005;
     setTimeout(() => {tick(branchGroup, canvas, new Date)}, targetFrameTime);
     breadthFirstPaint(branchGroup, canvas);
     branchGroup.evolve();
@@ -130,5 +131,6 @@ const targetFramerate = 20;
 const targetFrameTime = 1000/targetFramerate;
 let targetDepth = 1;
 let raisingTargetDepth = true;
+let globalRotation = 2 * Math.PI * Math.random();
 
 document.addEventListener("DOMContentLoaded", start, false)
