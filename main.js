@@ -1,130 +1,139 @@
 function BranchGroup(canvasContext) {
-    this.branches = [new Branch(canvasContext), new Branch(canvasContext)];
-    this.draw = (startPoint, rotation, depth) => {
-        this.branches.forEach(branch => {
-            branch.draw(startPoint, rotation, depth);
-        })
-    };
-    this.evolve = () => {
-        this.branches.forEach(branch => {
-            branch.evolve();
-        })
-    };
+  this.branchingFactor = 2
+  this.branches = [];
+  for (let i = 0; i < this.branchingFactor; i++) {
+    this.branches.push(new Branch(canvasContext))
+  }
+  this.draw = (startPoint, rotation, depth) => {
+    this.branches.forEach(branch => {
+      branch.draw(startPoint, rotation, depth);
+    })
+  };
+  this.evolve = () => {
+    this.branches.forEach(branch => {
+      branch.evolve();
+    })
+  };
 }
 
 function Branch(canvasContext) {
-    this.canvasContext = canvasContext;
-    this.baseLength = Math.random() * 0.4 + 0.6;
-    this.scaleFactor = 0.7 + (Math.random() * 0.2);
-    this.angle = 2 * Math.PI * Math.random();
-    this.angleSpeed = 0.01 * Math.random();
-    this.evolution = 0;
-    this.scaledLength = (depth) => {
-        return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7); 
+  this.canvasContext = canvasContext;
+  this.baseLength = Math.random() * 0.4 + 0.6;
+  this.scaleFactor = 0.7 + (Math.random() * 0.2);
+  this.angle = 2 * Math.PI * Math.random();
+  this.angleSpeed = 0.01 * Math.random();
+  this.evolution = 0;
+  this.scaledLength = (depth) => {
+    return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7); 
+  }
+  this.getEndpoint = (startPoint, rotation, depth) => {
+    return startPoint.translate(this.scaledLength(depth), rotation + this.angle);
+  };
+  this.draw = (startPoint, rotation, depth) => {
+    if (depth < 3) {
+      return
     }
-    this.getEndpoint = (startPoint, rotation, depth) => {
-        return startPoint.translate(this.scaledLength(depth), rotation + this.angle);
-    };
-    this.draw = (startPoint, rotation, depth) => {
-        const endPoint = this.getEndpoint(startPoint, rotation, depth)
-        canvasContext.strokeStyle = "hsl(" + (30 * depth + this.evolution) + ", 100%, 50%)";
-        canvasContext.lineWidth = 4 - 4 * (depth / targetDepth);
-        canvasContext.beginPath();
-        canvasContext.moveTo(startPoint.x, startPoint.y);
-        canvasContext.lineTo(endPoint.x, endPoint.y);
-        canvasContext.stroke();
-    };
-    this.evolve = () => {
-        this.angle += this.angleSpeed;
-        this.evolution++;
-    };
+    if (depth % 2) {
+      return
+    }
+    const endPoint = this.getEndpoint(startPoint, rotation, depth)
+    canvasContext.strokeStyle = "hsl(" + (30 * depth + this.evolution) + ", 100%, 50%)";
+    canvasContext.lineWidth = 4 - 4 * (depth / targetDepth);
+    canvasContext.beginPath();
+    canvasContext.moveTo(startPoint.x, startPoint.y);
+    canvasContext.lineTo(endPoint.x, endPoint.y);
+    canvasContext.stroke();
+  };
+  this.evolve = () => {
+    this.angle += this.angleSpeed;
+    this.evolution++;
+  };
 }
 
 function Point(x, y) {
-    this.x = x;
-    this.y = y;
-    this.translate = (length, rotation) => {
-        return new Point(
-            this.x + length * Math.cos(rotation),
-            this.y + length * Math.sin(rotation)
-        );
-    }
+  this.x = x;
+  this.y = y;
+  this.translate = (length, rotation) => {
+    return new Point(
+      this.x + length * Math.cos(rotation),
+      this.y + length * Math.sin(rotation)
+    );
+  }
 }
 
 function PaintingTask(branchGroup, startPoint, rotation, depth) {
-    this.branchGroup = branchGroup;
-    this.startPoint = startPoint;
-    this.rotation = rotation;
-    this.depth = depth;
-    this.draw = () => {
-        this.branchGroup.draw(this.startPoint, this.rotation, this.depth);
-    };
-    this.getChildren = () => {
-        if (this.depth > targetDepth) {
-            return [];
-        }
-        const children = [];
-        this.branchGroup.branches.forEach(branch => {
-            if (branch.scaledLength(depth) < 1) {
-                return;
-            }
-            children.push(new PaintingTask(
-                this.branchGroup,
-                branch.getEndpoint(this.startPoint, this.rotation, this.depth),
-                this.rotation + branch.angle,
-                this.depth + 1)
-            );
-        });
-        return children;
-    };
+  this.branchGroup = branchGroup;
+  this.startPoint = startPoint;
+  this.rotation = rotation;
+  this.depth = depth;
+  this.draw = () => {
+    this.branchGroup.draw(this.startPoint, this.rotation, this.depth);
+  };
+  this.getChildren = () => {
+    if (this.depth > targetDepth) {
+      return [];
+    }
+    const children = [];
+    this.branchGroup.branches.forEach(branch => {
+      if (branch.scaledLength(depth) < 1) {
+        return;
+      }
+      children.push(new PaintingTask(
+        this.branchGroup,
+        branch.getEndpoint(this.startPoint, this.rotation, this.depth),
+        this.rotation + branch.angle,
+        this.depth + 1)
+      );
+    });
+    return children;
+  };
 }
 
-function clearScreen(canvas) {
-    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function fadeScreen(canvas) {
+  canvas.getContext("2d").fillStyle = "rgba(0,0,0,0.2)";
+  canvas.getContext("2d").fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function breadthFirstPaint(branchGroup, canvas) {
-    clearScreen(canvas);
-    let paintingQueue = [
-        new PaintingTask(
-            branchGroup,
-            new Point(canvas.width / 2, canvas.height / 2),
-            globalRotation,
-            0
-        )
-    ];
+  fadeScreen(canvas);
+  let paintingQueue = [
+    new PaintingTask(
+      branchGroup,
+      new Point(canvas.width / 2, canvas.height / 2),
+      globalRotation,
+      0
+    )
+  ];
 
-    while (paintingQueue.length > 0) {
-        // shift lets us use an array like a queue
-        const currentTask = paintingQueue.shift();
-        currentTask.draw();
-        paintingQueue = paintingQueue.concat(currentTask.getChildren());
-    }
+  while (paintingQueue.length > 0) {
+    // shift lets us use an array like a queue
+    const currentTask = paintingQueue.shift();
+    currentTask.draw();
+    paintingQueue = paintingQueue.concat(currentTask.getChildren());
+  }
 }
 
 function start() {
-    const canvas = document.getElementById("canvas");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    const canvasContext = canvas.getContext("2d");
-    const branchGroup = new BranchGroup(canvasContext);
-    tick(branchGroup, canvas, new Date);
+  const canvas = document.getElementById("canvas");
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  const canvasContext = canvas.getContext("2d");
+  const branchGroup = new BranchGroup(canvasContext);
+  tick(branchGroup, canvas, new Date);
 }
 
 function tick(branchGroup, canvas, startTime) {
-    globalRotation -= 0.005;
-    setTimeout(() => {tick(branchGroup, canvas, new Date)}, targetFrameTime);
-    breadthFirstPaint(branchGroup, canvas);
-    branchGroup.evolve();
-    if (raisingTargetDepth) {
-        if (new Date - startTime < targetFrameTime / 2) {
-            targetDepth++;
-        } else {
-            raisingTargetDepth = false;
-        }
+  globalRotation -= 0.005;
+  setTimeout(() => {tick(branchGroup, canvas, new Date)}, targetFrameTime);
+  breadthFirstPaint(branchGroup, canvas);
+  branchGroup.evolve();
+  if (raisingTargetDepth) {
+    if (new Date - startTime < targetFrameTime / 2) {
+      targetDepth++;
+    } else {
+      raisingTargetDepth = false;
     }
+  }
 }
 
 const targetFramerate = 20;
