@@ -24,18 +24,12 @@ function Branch(canvasContext) {
   this.angleSpeed = 0.01 * Math.random();
   this.evolution = 0;
   this.scaledLength = (depth) => {
-    return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 7); 
+    return this.baseLength * (Math.pow(this.scaleFactor, depth)) * (Math.min(window.innerHeight, window.innerWidth) / 6); 
   }
   this.getEndpoint = (startPoint, rotation, depth) => {
     return startPoint.translate(this.scaledLength(depth), rotation + this.angle);
   };
   this.draw = (startPoint, rotation, depth) => {
-    if (depth < 3) {
-      return
-    }
-    if (depth % 2) {
-      return
-    }
     const endPoint = this.getEndpoint(startPoint, rotation, depth)
     canvasContext.strokeStyle = "hsl(" + (30 * depth + this.evolution) + ", 100%, 50%)";
     canvasContext.lineWidth = 4 - 4 * (depth / targetDepth);
@@ -90,7 +84,7 @@ function PaintingTask(branchGroup, startPoint, rotation, depth) {
 }
 
 function fadeScreen(canvas) {
-  canvas.getContext("2d").fillStyle = "rgba(0,0,0,0.2)";
+  canvas.getContext("2d").fillStyle = "rgba(0,0,0,0.9)";
   canvas.getContext("2d").fillRect(0, 0, canvas.width, canvas.height);
 }
 
