@@ -16,7 +16,10 @@ function makeBranch(branchValues = getRandomBranchValues()) {
 
   const getEndpoint = ([x, y], rotation, depth) => {
     const length = getScaledLength(depth);
-    return [x + length * Math.cos(rotation), y + length * Math.sin(rotation)];
+    return [
+      x + length * Math.cos(rotation + branchValues.angle),
+      y + length * Math.sin(rotation + branchValues.angle),
+    ];
   };
 
   const draw = (canvasContext, startPoint, rotation, depth) => {
@@ -95,7 +98,11 @@ function fadeScreen(canvas) {
   canvas.getContext("2d").fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function tick(branchGroup, canvas, globalRotation = 0) {
+function tick(
+  branchGroup,
+  canvas,
+  globalRotation = Math.random() * 2 * Math.PI
+) {
   maximiseCanvas(canvas);
   fadeScreen(canvas);
   breadthFirstPaint(branchGroup, canvas.getContext("2d"), globalRotation);
@@ -103,7 +110,7 @@ function tick(branchGroup, canvas, globalRotation = 0) {
     tick(
       branchGroup.map((branch) => (movement ? branch.evolve() : branch)),
       canvas,
-      globalRotation - movement ? 0.005 : 0
+      globalRotation - (movement ? 0.005 : 0)
     )
   );
 }
