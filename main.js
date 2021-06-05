@@ -3,7 +3,7 @@ function getRandomBranchValues() {
     baseLength: Math.random() * 0.4 + 0.6,
     scaleFactor: 0.7 + Math.random() * 0.2,
     angle: 2 * Math.PI * Math.random(),
-    angleSpeed: 0.01 * Math.random(),
+    angleSpeed: 0.005 * Math.random(),
     evolution: 0,
   };
 }
@@ -101,16 +101,21 @@ function fadeScreen(canvas) {
 function tick(
   branchGroup,
   canvas,
-  globalRotation = Math.random() * 2 * Math.PI
+  globalRotation = Math.random() * 2 * Math.PI,
+  startTickTime = 0
 ) {
   maximiseCanvas(canvas);
   fadeScreen(canvas);
   breadthFirstPaint(branchGroup, canvas.getContext("2d"), globalRotation);
+  const elapsed = performance.now() - startTickTime;
+  if (elapsed < 4) treeDepth++;
+  if (elapsed > 16) treeDepth--;
   window.requestAnimationFrame(() =>
     tick(
       branchGroup.map((branch) => (movement ? branch.evolve() : branch)),
       canvas,
-      globalRotation - (movement ? 0.005 : 0)
+      globalRotation - (movement ? 0.005 : 0),
+      performance.now()
     )
   );
 }
@@ -127,7 +132,7 @@ function start() {
   window.requestAnimationFrame(() => tick(branchGroup, canvas));
 }
 
-const treeDepth = 10;
+let treeDepth = 3;
 let movement = true;
 function handleToggleMovementEvent(event) {
   event.preventDefault();
