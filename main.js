@@ -96,25 +96,37 @@ function fadeScreen(canvas) {
 }
 
 function tick(branchGroup, canvas, globalRotation = 0) {
+  maximiseCanvas(canvas);
   fadeScreen(canvas);
   breadthFirstPaint(branchGroup, canvas.getContext("2d"), globalRotation);
   window.requestAnimationFrame(() =>
     tick(
-      branchGroup.map((branch) => branch.evolve()),
+      branchGroup.map((branch) => (movement ? branch.evolve() : branch)),
       canvas,
-      globalRotation - 0.005
+      globalRotation - movement ? 0.005 : 0
     )
   );
 }
 
-function start() {
-  const canvas = document.getElementById("canvas");
+function maximiseCanvas(canvas) {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
+}
+
+function start() {
+  const canvas = document.getElementById("canvas");
+  maximiseCanvas(canvas);
   const branchGroup = [makeBranch(), makeBranch()];
   window.requestAnimationFrame(() => tick(branchGroup, canvas));
 }
 
 const treeDepth = 10;
+let movement = true;
+function handleToggleMovementEvent(event) {
+  event.preventDefault();
+  movement = !movement;
+}
 
-document.addEventListener("DOMContentLoaded", start, false);
+document.addEventListener("touchend", handleToggleMovementEvent);
+document.addEventListener("mouseup", handleToggleMovementEvent);
+document.addEventListener("DOMContentLoaded", start);
