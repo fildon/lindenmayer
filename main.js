@@ -12,7 +12,7 @@ function makeBranch(branchValues = getRandomBranchValues()) {
   const getScaledLength = (depth) =>
     branchValues.baseLength *
     Math.pow(branchValues.scaleFactor, depth) *
-    (Math.min(window.innerHeight, window.innerWidth) / 6);
+    (Math.min(initialScreenHeight, initialScreenWidth) / 6);
 
   const getEndpoint = ([x, y], rotation, depth) => {
     const length = getScaledLength(depth);
@@ -126,6 +126,9 @@ function handleToggleMovementEvent(event) {
   event.preventDefault();
   movement = !movement;
 }
+
+const initialScreenWidth = window.innerWidth;
+const initialScreenHeight = window.innerHeight;
 
 document.addEventListener("touchend", handleToggleMovementEvent);
 document.addEventListener("mouseup", handleToggleMovementEvent);
