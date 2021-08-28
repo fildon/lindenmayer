@@ -143,5 +143,5 @@ const initialScreenWidth = window.innerWidth;
 const initialScreenHeight = window.innerHeight;
 
 document.addEventListener("touchend", handleToggleMovementEvent);
-document.addEventListener("mouseup", handleToggleMovementEvent);
+document.addEventListener("click", handleToggleMovementEvent);
 document.addEventListener("DOMContentLoaded", start);
